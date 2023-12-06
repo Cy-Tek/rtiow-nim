@@ -43,6 +43,11 @@ proc `*=`*(v: var Vec3, t: float) {.inline.} =
     v[1] *= t
     v[2] *= t
 
+proc `*`*(v, u: Vec3): Vec3 {.inline.} =
+    result[0] = v[0] * u[0]
+    result[1] = v[1] * u[1]
+    result[2] = v[2] * u[2]
+
 proc `*`*(v: Vec3, t: float): Vec3 {.inline.} =
     result[0] = v[0] * t
     result[1] = v[1] * t
@@ -69,6 +74,13 @@ proc cross*(v, u: Vec3): Vec3 {.inline.} =
     result[0] = v[1] * u[2] - v[2] * u[1]
     result[1] = v[2] * u[0] - v[0] * u[2]
     result[2] = v[0] * u[1] - v[1] * u[0]
+
+proc reflect*(v: Vec3, normal: Vec3): Vec3 {.inline.} =
+    v - 2 * v.dot(normal) * normal
+
+proc nearZero*(v: Vec3): bool =
+    let s = 1e-8
+    return abs(v[0]) < s and abs(v[1]) < s and abs(v[2]) < s
 
 # Functions to produce randomized vectors
 proc randomVec*(): Vec3 {.inline.} =

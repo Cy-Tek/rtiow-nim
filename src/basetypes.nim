@@ -6,13 +6,19 @@ type
     
 # Material related types
 type
+    Metal* = object
+        albedo*: Color
+        fuzz*: float
     Lambertian* = object
         albedo*: Color
+
     MaterialKind* = enum
         mkLambertian
+        mkMetal
     Material* = object
         case kind*: MaterialKind
         of mkLambertian: lambertian*: Lambertian
+        of mkMetal: metal*: Metal
 
 # World object types
 type

@@ -1,5 +1,5 @@
 import strformat, options, random
-import vec, world, ray, interval, basetypes
+import vec, world, ray, interval, basetypes, material
 
 type
     Camera* = object
@@ -42,8 +42,14 @@ proc rayColor(r: Ray, depth: int, scene: World): Color =
     let rec = scene.hit(r, initInterval(0.001, Inf))
     if rec.isSome:
         let rec = rec.get()
-        let direction = rec.normal + randomUnitVector()
-        return 0.5 * rayColor(Ray(origin: rec.point, direction: direction), depth - 1, scene)
+        var
+            scattered: Ray
+            attenuation: Color
+        
+        if rec.mat.scatter(r, rec, attenuation, scattered):
+            return attenuation * rayColor(scattered, depth - 1, scene)
+            
+        return color(0, 0, 0)
 
     let unitDirection = r.direction.unit
     let a = 0.5 * (unitDirection.y + 1)
