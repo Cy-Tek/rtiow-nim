@@ -1,4 +1,4 @@
-import strformat, options, random
+import strformat, options, random, math
 import vec, world, ray, interval, basetypes, material
 
 type
@@ -7,33 +7,45 @@ type
         imageWidth*: int = 400
         samplesPerPixel*: int = 10
         maxDepth*: int = 10
+        vfov*: float = 90
+        lookFrom*: Point3 = point3(0, 0, -1)
+        lookAt*: Point3 = point3(0, 0, 0)
+        vUp*: Vec3 = vec3(0, 1, 0)
 
         imageHeight: int
         center, pixel00Loc: Point3
         pixelDeltaU, pixelDeltaV: Vec3
+        u, v, w: Vec3
 
 proc initCamera(cam: var Camera) =
     cam.imageHeight = block:
         let height = int(float(cam.imageWidth) / cam.aspectRatio)
         if height < 1: 1 else: height
 
-    cam.center = point3(0, 0, 0)
+    cam.center = cam.lookFrom
 
-    let focalLength = 1.0
-    let viewportHeight = 2.0
+    let focalLength = (cam.lookFrom - cam.lookAt).length
+    let theta = degToRad(cam.vfov)
+    let h = tan(theta / 2)
+    let viewportHeight = 2 * h * focalLength
     let viewportWidth = viewportHeight * float(cam.imageWidth) / float(
             cam.imageHeight)
+    
+    # Calculate the u,v,w unit basis vectors for the camera coordinate frame
+    cam.w = unit(cam.lookFrom - cam.lookAt)
+    cam.u = unit(cross(cam.vUp, cam.w))
+    cam.v = cross(cam.w, cam.u)
 
     # Calculate the vectors across the horizontal and down the vertical viewport edges.
-    let viewportU = vec3(viewportWidth, 0, 0)
-    let viewportV = vec3(0, -viewportHeight, 0)
+    let viewportU = viewportWidth * cam.u
+    let viewportV = viewportHeight * -cam.v
 
     # Calculate the horizontal and vertical delta vectors from pixel to pixel
     cam.pixelDeltaU = viewportU / float(cam.imageWidth)
     cam.pixelDeltaV = viewportV / float(cam.imageHeight)
 
     # Calculate the location of the upper left pixel
-    let viewportUpperLeft = cam.center - vec3(0, 0, focalLength) - viewportU /
+    let viewportUpperLeft = cam.center - (focalLength * cam.w) - viewportU /
             2 - viewportV / 2
     cam.pixel00Loc = viewportUpperLeft + 0.5 * (cam.pixelDeltaU +
             cam.pixelDeltaV)

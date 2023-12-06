@@ -38,7 +38,7 @@ proc scatterMetal(m: Metal, rIn: Ray, rec: HitRecord, attenuation: var Color,
 
 # Dielectric procedures
 
-proc reflectance(cosine, refIdx: float): float =
+proc reflectance(cosine, refIdx: float): float {.inline.} =
     # Use Schlick's approximation for reflectance
     let r0 = block:
         let temp = (1 - refIdx) / (1 + refIdx)

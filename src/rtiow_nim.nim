@@ -23,5 +23,10 @@ cam.imageWidth = 400
 cam.samplesPerPixel = 100
 cam.maxDepth = 50
 
+cam.vfov = 20
+cam.lookFrom = point3(-2, 2, 1)
+cam.lookAt = point3(0, 0, -1)
+cam.vUp = vec3(0, 1, 0)
+
 when isMainModule:
     cam.render(scene)
