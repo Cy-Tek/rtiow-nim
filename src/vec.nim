@@ -1,10 +1,5 @@
-import std/[typetraits, math, strformat]
-import interval
-
-type
-    Vec3* = distinct array[3, float]
-    Color* = Vec3
-    Point3* = Vec3
+import std/[typetraits, math, strformat, random]
+import interval, basetypes
 
 proc vec3*(x, y, z: float): Vec3 {.inline.} = Vec3([x, y, z])
 proc color*(r, g, b: float): Color {.inline.} = Color(vec3(r,g,b))
@@ -75,14 +70,39 @@ proc cross*(v, u: Vec3): Vec3 {.inline.} =
     result[1] = v[2] * u[0] - v[0] * u[2]
     result[2] = v[0] * u[1] - v[1] * u[0]
 
+# Functions to produce randomized vectors
+proc randomVec*(): Vec3 {.inline.} =
+    vec3(rand(1.0), rand(1.0), rand(1.0))
+
+proc randomVec*(min, max: float): Vec3 {.inline.} =
+    vec3(rand(min..max), rand(min..max), rand(min..max))
+
+proc randomInUnitSphere*(): Vec3 {.inline.} =
+    while true:
+        let p = randomVec(-1, 1)
+        if p.lengthSquared < 1:
+            return p
+
+proc randomUnitVector*(): Vec3 {.inline.} = randomInUnitSphere().unit()
+
+proc randomOnHemisphere*(normal: Vec3): Vec3 {.inline.} =
+    let onUnitSphere = randomUnitVector()
+    if onUnitSphere.dot(normal) > 0:
+        return onUnitSphere
+    else:
+        return -onUnitSphere
+
+# String operations for vectors and colors
+proc linearToGamma(linearCopmonent: float): float {.inline.} = sqrt(linearCopmonent)
+
 proc `$`*(v: Vec3): string {.inline.} = &"{v.x} {v.y} {v.z}"
 proc writeColor*(c: Color, samplesPerPixel: int): string {.inline.} =
     let scaleFactor = 1.0 / float(samplesPerPixel)
     let pixel = c * scaleFactor
     let intensity = initInterval(0, 0.999)
     
-    let r = intensity.clamp(pixel.x) * 256
-    let g = intensity.clamp(pixel.y) * 256
-    let b = intensity.clamp(pixel.z) * 256
+    let r = intensity.clamp(linearToGamma(pixel.x)) * 256
+    let g = intensity.clamp(linearToGamma(pixel.y)) * 256
+    let b = intensity.clamp(linearToGamma(pixel.z)) * 256
     
-    &"{int(r)} {int(g)} {int(b)}))"
+    &"{int(r)} {int(g)} {int(b)}"

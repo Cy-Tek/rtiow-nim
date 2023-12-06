@@ -1,18 +1,8 @@
 import options, math
-import vec, ray, interval
+import vec, ray, interval, basetypes
 
-type
-    Sphere* = object
-        center*: Point3
-        radius*: float
-    HitRecord* = object
-        point*: Point3
-        normal*: Vec3
-        distance*: float
-        frontFace*: bool
-
-proc sphere*(center: Point3, radius: float): Sphere =
-    Sphere(center: center, radius: radius)
+proc sphere*(center: Point3, radius: float, material: Material): Sphere =
+    Sphere(center: center, radius: radius, mat: material)
 
 proc setFaceNormal(rec: var HitRecord, r: Ray, outwardNormal: Vec3) {.inline.} =
     rec.frontFace = r.direction.dot(outwardNormal) < 0
@@ -39,6 +29,7 @@ proc hit*(sphere: Sphere, r: Ray, rayT: Interval): Option[HitRecord] {.inline.} 
     var rec: HitRecord
     rec.distance = root
     rec.point = r.at(rec.distance)
+    rec.mat = sphere.mat
     
     let outwardNormal = (rec.point - sphere.center) / sphere.radius
     rec.setFaceNormal(r, outwardNormal)

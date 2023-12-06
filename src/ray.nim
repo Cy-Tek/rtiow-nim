@@ -1,4 +1,4 @@
-import vec
+import basetypes, vec
 
 type
     Ray* = object

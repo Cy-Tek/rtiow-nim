@@ -1,5 +1,5 @@
 import std/options
-import objects, ray, interval
+import objects, ray, interval, basetypes
 
 type
     World* = object

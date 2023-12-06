@@ -12,6 +12,7 @@ var cam: Camera
 cam.aspectRatio = 16.0 / 9.0
 cam.imageWidth = 400
 cam.samplesPerPixel = 100
+cam.maxDepth = 50
 
 when isMainModule:
     cam.render(scene)

@@ -1,11 +1,12 @@
 import strformat, options, random
-import vec, world, ray, interval
+import vec, world, ray, interval, basetypes
 
 type
     Camera* = object
         aspectRatio*: float = 1.0
         imageWidth*: int = 400
         samplesPerPixel*: int = 10
+        maxDepth*: int = 10
 
         imageHeight: int
         center, pixel00Loc: Point3
@@ -34,10 +35,15 @@ proc initCamera(cam: var Camera) =
     let viewportUpperLeft = cam.center - vec3(0, 0, focalLength) - viewportU / 2 - viewportV / 2
     cam.pixel00Loc = viewportUpperLeft + 0.5 * (cam.pixelDeltaU + cam.pixelDeltaV)
 
-proc rayColor(r: Ray, scene: World): Color =
-    let rec = scene.hit(r, initInterval(0, Inf))
+proc rayColor(r: Ray, depth: int, scene: World): Color =
+    if depth <= 0:
+        return color(0, 0, 0)
+
+    let rec = scene.hit(r, initInterval(0.001, Inf))
     if rec.isSome:
-        return 0.5 * (rec.get().normal + color(1, 1, 1))
+        let rec = rec.get()
+        let direction = rec.normal + randomUnitVector()
+        return 0.5 * rayColor(Ray(origin: rec.point, direction: direction), depth - 1, scene)
 
     let unitDirection = r.direction.unit
     let a = 0.5 * (unitDirection.y + 1)
@@ -70,8 +76,9 @@ proc render*(cam: var Camera, scene: World) =
             var pixelColor: Color
             for sample in 0..<cam.samplesPerPixel:
                 let r = cam.getRay(i, j)
-                pixelColor += rayColor(r, scene)
+                pixelColor += rayColor(r, cam.maxDepth, scene)
 
             write(stdout, &"{writeColor(pixelColor, cam.samplesPerPixel)}\n")
 
     writeLine(stderr, "\rDone.                                         ")
+
