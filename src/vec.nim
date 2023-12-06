@@ -100,7 +100,7 @@ proc randomVec*(min, max: float): Vec3 {.inline.} =
 
 proc randomInUnitSphere*(): Vec3 {.inline.} =
     while true:
-        let p = randomVec(-1, 1)
+        let p = randomVec(-1.0, 1.0)
         if p.lengthSquared < 1:
             return p
 
@@ -112,6 +112,12 @@ proc randomOnHemisphere*(normal: Vec3): Vec3 {.inline.} =
         return onUnitSphere
     else:
         return -onUnitSphere
+
+proc randomInUnitDisk*(): Vec3 {.inline.} =
+    while true:
+        let p = vec3(rand(-1.0..1.0), rand(-1.0..1.0), 0)
+        if p.lengthSquared < 1:
+            return p
 
 # String operations for vectors and colors
 proc linearToGamma(linearCopmonent: float): float {.inline.} = sqrt(linearCopmonent)

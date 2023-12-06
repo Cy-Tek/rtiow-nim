@@ -28,5 +28,8 @@ cam.lookFrom = point3(-2, 2, 1)
 cam.lookAt = point3(0, 0, -1)
 cam.vUp = vec3(0, 1, 0)
 
+cam.defocusAngle = 10
+cam.focusDist = 3.4
+
 when isMainModule:
     cam.render(scene)
