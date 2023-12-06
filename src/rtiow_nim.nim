@@ -6,8 +6,8 @@ randomize()
 
 let
     materialGround = lambertian(color(0.8, 0.8, 0.0))
-    materialCenter = lambertian(color(0.7, 0.3, 0.3))
-    materialLeft = metal(color(0.8, 0.8, 0.8), 0.3)
+    materialCenter = dielectric(1.5)
+    materialLeft = dielectric(1.5)
     materialRight = metal(color(0.8, 0.6, 0.2), 1.0)
 
 var scene: World

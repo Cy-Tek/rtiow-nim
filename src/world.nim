@@ -15,12 +15,12 @@ proc hit*(world: World, r: Ray, rayT: Interval): Option[HitRecord] {.inline.} =
         if temp.isSome():
             let res = temp.get()
             hitAnything = true
-            closestSoFar = res.distance 
+            closestSoFar = res.distance
             rec = res
-    
+
     if not hitAnything:
         return none(HitRecord)
-    
+
     return some(rec)
 
 proc addSphere*(world: var World, sphere: Sphere) {.inline.} =

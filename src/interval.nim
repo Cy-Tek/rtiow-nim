@@ -4,7 +4,7 @@ type
 
 proc initInterval*(min, max: float): Interval = Interval(min: min, max: max)
 
-proc contains*(interval: Interval, val: float): bool = 
+proc contains*(interval: Interval, val: float): bool =
     interval.min <= val and val <= interval.max
 
 proc surrounds*(interval: Interval, val: float): bool =

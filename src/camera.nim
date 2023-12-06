@@ -16,12 +16,13 @@ proc initCamera(cam: var Camera) =
     cam.imageHeight = block:
         let height = int(float(cam.imageWidth) / cam.aspectRatio)
         if height < 1: 1 else: height
-    
+
     cam.center = point3(0, 0, 0)
-    
+
     let focalLength = 1.0
     let viewportHeight = 2.0
-    let viewportWidth = viewportHeight * float(cam.imageWidth) / float(cam.imageHeight)
+    let viewportWidth = viewportHeight * float(cam.imageWidth) / float(
+            cam.imageHeight)
 
     # Calculate the vectors across the horizontal and down the vertical viewport edges.
     let viewportU = vec3(viewportWidth, 0, 0)
@@ -32,8 +33,10 @@ proc initCamera(cam: var Camera) =
     cam.pixelDeltaV = viewportV / float(cam.imageHeight)
 
     # Calculate the location of the upper left pixel
-    let viewportUpperLeft = cam.center - vec3(0, 0, focalLength) - viewportU / 2 - viewportV / 2
-    cam.pixel00Loc = viewportUpperLeft + 0.5 * (cam.pixelDeltaU + cam.pixelDeltaV)
+    let viewportUpperLeft = cam.center - vec3(0, 0, focalLength) - viewportU /
+            2 - viewportV / 2
+    cam.pixel00Loc = viewportUpperLeft + 0.5 * (cam.pixelDeltaU +
+            cam.pixelDeltaV)
 
 proc rayColor(r: Ray, depth: int, scene: World): Color =
     if depth <= 0:
@@ -45,10 +48,10 @@ proc rayColor(r: Ray, depth: int, scene: World): Color =
         var
             scattered: Ray
             attenuation: Color
-        
+
         if rec.mat.scatter(r, rec, attenuation, scattered):
             return attenuation * rayColor(scattered, depth - 1, scene)
-            
+
         return color(0, 0, 0)
 
     let unitDirection = r.direction.unit
@@ -62,7 +65,8 @@ proc pixelSampleSquare(cam: Camera): Vec3 =
 
 proc getRay(cam: Camera, i, j: int): Ray =
     # Get a randomly sampled camera ray for the pixel at location i,j
-    let pixelCenter = cam.pixel00Loc + (float(i) * cam.pixelDeltaU) + (float(j) * cam.pixelDeltaV)
+    let pixelCenter = cam.pixel00Loc + (float(i) * cam.pixelDeltaU) + (float(
+            j) * cam.pixelDeltaV)
     let pixelSample = pixelCenter + cam.pixelSampleSquare()
 
     let rayOrigin = cam.center
@@ -77,7 +81,7 @@ proc render*(cam: var Camera, scene: World) =
 
     for j in 0..<cam.imageHeight:
         write(stderr, &"\rScanlines remaining: {cam.imageHeight-j} ")
-        
+
         for i in 0..<cam.imageWidth:
             var pixelColor: Color
             for sample in 0..<cam.samplesPerPixel:

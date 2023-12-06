@@ -2,7 +2,7 @@ import std/[typetraits, math, strformat, random]
 import interval, basetypes
 
 proc vec3*(x, y, z: float): Vec3 {.inline.} = Vec3([x, y, z])
-proc color*(r, g, b: float): Color {.inline.} = Color(vec3(r,g,b))
+proc color*(r, g, b: float): Color {.inline.} = Color(vec3(r, g, b))
 proc point3*(x, y, z: float): Point3 {.inline.} = Point3(vec3(x, y, z))
 
 proc `[]`*(v: Vec3, ix: int): float {.inline.} = distinctBase(v)[ix]
@@ -75,8 +75,17 @@ proc cross*(v, u: Vec3): Vec3 {.inline.} =
     result[1] = v[2] * u[0] - v[0] * u[2]
     result[2] = v[0] * u[1] - v[1] * u[0]
 
-proc reflect*(v: Vec3, normal: Vec3): Vec3 {.inline.} =
+proc reflect*(v, normal: Vec3): Vec3 {.inline.} =
     v - 2 * v.dot(normal) * normal
+
+proc refract*(uv, normal: Vec3, etaiOverEtat: float): Vec3 {.inline.} =
+    let
+        cosTheta = min(dot(-uv, normal), 1.0)
+        rOutPerp = etaiOverEtat * (uv + cosTheta * normal)
+        rOutParallel = -sqrt(abs(1.0 - rOutPerp.lengthSquared)) * normal
+
+    return rOutPerp + rOutParallel
+
 
 proc nearZero*(v: Vec3): bool =
     let s = 1e-8
@@ -112,9 +121,9 @@ proc writeColor*(c: Color, samplesPerPixel: int): string {.inline.} =
     let scaleFactor = 1.0 / float(samplesPerPixel)
     let pixel = c * scaleFactor
     let intensity = initInterval(0, 0.999)
-    
+
     let r = intensity.clamp(linearToGamma(pixel.x)) * 256
     let g = intensity.clamp(linearToGamma(pixel.y)) * 256
     let b = intensity.clamp(linearToGamma(pixel.z)) * 256
-    
+
     &"{int(r)} {int(g)} {int(b)}"
